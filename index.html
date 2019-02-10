@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Giant Waves</title>
+  <link rel="stylesheet" href="app.css">
+  <script src="Tone.js"></script>
+</head>
+<body>
+
+<center>
+
+<!--Making the actual buttons-->
+<br/>
+<br/>
+<button type="button" id="sineButton">Giant Sine</button>
+<button type="button" id="squareButton">Giant Square</button>
+<button type="button" id="sawtoothButton">Giant Sawtooth</button>
+<button type="button" id="triangleButton">Giant Triangle</button>
+<br/>
+<br/>
+<button type="button" id="stopButton">Giant Stop</button>
+
+</center>
+
+<script>
+var context,
+    audioBuffer,
+    sineOscillator,
+    sinePlayer,
+    squareOscillator,
+    squarePlayer,
+    sawtoothOscillator,
+    sawtoothPlayer,
+    triangleOscillator,
+    trianglePlayer;
+
+function initializeAudioContext() {
+  if (context === undefined) {
+    context = new AudioContext();
+    var request = new XMLHttpRequest();
+    request.open('GET', "sound1.wav", true);
+    request.responseType = 'arraybuffer';
+
+    // Decode asynchronously
+    request.onload = function() {
+      context.decodeAudioData(request.response, function(buffer) {
+        audioBuffer = buffer;
+      }, onError);
+    };
+    request.send();
+  }
+}
+
+function onError() {
+  console.log("Sound Can't Be Loaded");
+}
+
+document.querySelector("#stopButton").addEventListener('click', function() {
+  if (context !== undefined) {
+    // If sineOScillator is defined (not undefined)
+    if (sineOscillator !== undefined) {
+      sineOscillator.stop();
+      sineOscillator = undefined;
+    }
+
+    if (squareOscillator !== undefined) {
+      squareOscillator.stop();
+      squareOscillator = undefined;
+    }
+
+    if (sawtoothOscillator !== undefined) {
+      sawtoothOscillator.stop();
+      sawtoothOscillator = undefined;
+    }
+
+    if (triangleOscillator !== undefined) {
+      triangleOscillator.stop();
+      triangleOscillator = undefined;
+    }
+
+    if (sinePlayer !== undefined) {
+      sinePlayer.stop();
+    }
+
+    if (squarePlayer !== undefined) {
+      squarePlayer.stop();
+    }
+
+    if (sawtoothPlayer !== undefined) {
+      sawtoothPlayer.stop();
+    }
+
+    if (trianglePlayer !== undefined) {
+      trianglePlayer.stop();
+    }
+
+    context = undefined;
+  }
+});
+
+function initializePlayer() {
+  initializeAudioContext();
+  var player = context.createBufferSource();
+  player.loop = true;
+  player.connect(context.destination);
+  player.buffer = audioBuffer;
+  return player;
+}
+
+function startOscillator(type, player) {
+  var now = context.currentTime;
+  var oscillator = context.createOscillator();
+  oscillator.connect(context.destination);
+  oscillator.frequency.setValueAtTime(622.25, now);
+  oscillator.frequency.setValueAtTime(493.88, now + 0.5);
+  oscillator.frequency.setValueAtTime(415.30, now + 1);
+  oscillator.frequency.setValueAtTime(329.63, now + 1.5);
+  oscillator.frequency.setValueAtTime(392.00, now + 2);
+  oscillator.frequency.setValueAtTime(415.30, now + 3);
+  oscillator.frequency.setValueAtTime(369.99, now + 3.5);
+  oscillator.frequency.setValueAtTime(493.88, now + 4);
+  oscillator.frequency.setValueAtTime(392.00, now + 4.5);
+  oscillator.frequency.setValueAtTime(329.63, now + 5);
+  oscillator.frequency.setValueAtTime(261.63, now + 5.5);
+  oscillator.frequency.setValueAtTime(311.13, now + 6);
+  oscillator.frequency.setValueAtTime(329.63, now + 7);
+  oscillator.frequency.setValueAtTime(293.66, now + 7.5);
+  oscillator.frequency.setValueAtTime(392.00, now + 8);
+  oscillator.frequency.setValueAtTime(415.30, now + 9);
+  oscillator.frequency.setValueAtTime(369.99, now + 9.5);
+  oscillator.frequency.setValueAtTime(493.88, now + 10);
+  oscillator.frequency.setValueAtTime(523.25, now + 11);
+  oscillator.frequency.setValueAtTime(466.16, now + 11.5);
+  oscillator.frequency.setValueAtTime(622.25, now + 12);
+  oscillator.frequency.setValueAtTime(659.25, now + 13);
+  oscillator.frequency.setValueAtTime(587.33, now + 13.5);
+  oscillator.frequency.setValueAtTime(783.99, now + 14);
+  oscillator.frequency.setValueAtTime(622.25, now + 15);
+  oscillator.frequency.setValueAtTime(622.25, now + 15.5);
+  oscillator.type = type;
+  oscillator.start();
+  player.start();
+  return oscillator;
+}
+
+document.querySelector("#sineButton").addEventListener('click', function() {
+  sinePlayer = initializePlayer();
+  sineOscillator = startOscillator("sine", sinePlayer);
+});
+
+document.querySelector("#squareButton").addEventListener('click', function() {
+  squarePlayer = initializePlayer();
+  squareOscillator = startOscillator("square", squarePlayer);
+});
+
+document.querySelector("#sawtoothButton").addEventListener('click', function() {
+  sawtoothPlayer = initializePlayer();
+  sawtoothOscillator = startOscillator("sawtooth", sawtoothPlayer);
+});
+
+document.querySelector("#triangleButton").addEventListener('click', function() {
+  trianglePlayer = initializePlayer();
+  triangleOscillator = startOscillator("triangle", trianglePlayer);
+});
+
+</script>
+
+</body>
+</html>
