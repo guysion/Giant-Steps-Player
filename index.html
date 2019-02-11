@@ -19,6 +19,7 @@
 <button type="button" id="triangleButton">Giant Triangle</button>
 <br/>
 <br/>
+<br/>
 <button type="button" id="stopButton">Giant Stop</button>
 
 </center>
@@ -34,27 +35,6 @@ var context,
     sawtoothPlayer,
     triangleOscillator,
     trianglePlayer;
-
-function initializeAudioContext() {
-  if (context === undefined) {
-    context = new AudioContext();
-    var request = new XMLHttpRequest();
-    request.open('GET', "sound1.wav", true);
-    request.responseType = 'arraybuffer';
-
-    // Decode asynchronously
-    request.onload = function() {
-      context.decodeAudioData(request.response, function(buffer) {
-        audioBuffer = buffer;
-      }, onError);
-    };
-    request.send();
-  }
-}
-
-function onError() {
-  console.log("Sound Can't Be Loaded");
-}
 
 document.querySelector("#stopButton").addEventListener('click', function() {
   if (context !== undefined) {
@@ -95,12 +75,35 @@ document.querySelector("#stopButton").addEventListener('click', function() {
       trianglePlayer.stop();
     }
 
+    document.querySelector("#stopButton").disabled = true;
     context = undefined;
   }
 });
 
+function initializeAudioContext(onBufferInitialized) {
+  if (context === undefined) {
+    context = new AudioContext();
+    var request = new XMLHttpRequest();
+    request.open('GET', "sound1.wav", true);
+    request.responseType = 'arraybuffer';
+    // Decode asynchronously
+    request.onload = function() {
+      context.decodeAudioData(request.response, function(buffer) {
+        audioBuffer = buffer;
+        onBufferInitialized();
+      }, onError);
+    };
+    request.send();
+  } else {
+    onBufferInitialized();
+  }
+}
+
+function onError() {
+  console.log("failed to load sound file");
+}
+
 function initializePlayer() {
-  initializeAudioContext();
   var player = context.createBufferSource();
   player.loop = true;
   player.connect(context.destination);
@@ -138,33 +141,44 @@ function startOscillator(type, player) {
   oscillator.frequency.setValueAtTime(783.99, now + 14);
   oscillator.frequency.setValueAtTime(622.25, now + 15);
   oscillator.frequency.setValueAtTime(622.25, now + 15.5);
+  oscillator.frequency.setValueAtTime(0, now + 16);
   oscillator.type = type;
   oscillator.start();
   player.start();
+  document.querySelector("#stopButton").disabled = false;
   return oscillator;
 }
 
 document.querySelector("#sineButton").addEventListener('click', function() {
-  sinePlayer = initializePlayer();
-  sineOscillator = startOscillator("sine", sinePlayer);
+  initializeAudioContext(function () {
+    sinePlayer = initializePlayer();
+    sineOscillator = startOscillator("sine", sinePlayer);
+  });
 });
 
 document.querySelector("#squareButton").addEventListener('click', function() {
-  squarePlayer = initializePlayer();
-  squareOscillator = startOscillator("square", squarePlayer);
+  initializeAudioContext(function () {
+    squarePlayer = initializePlayer();
+    squareOscillator = startOscillator("square", squarePlayer);
+  });
 });
 
 document.querySelector("#sawtoothButton").addEventListener('click', function() {
-  sawtoothPlayer = initializePlayer();
-  sawtoothOscillator = startOscillator("sawtooth", sawtoothPlayer);
+  initializeAudioContext(function () {
+    sawtoothPlayer = initializePlayer();
+    sawtoothOscillator = startOscillator("sawtooth", sawtoothPlayer);
+  });
 });
 
 document.querySelector("#triangleButton").addEventListener('click', function() {
-  trianglePlayer = initializePlayer();
-  triangleOscillator = startOscillator("triangle", trianglePlayer);
+  initializeAudioContext(function () {
+    trianglePlayer = initializePlayer();
+    triangleOscillator = startOscillator("triangle", trianglePlayer);
+  });
 });
 
 </script>
+
 
 </body>
 </html>
