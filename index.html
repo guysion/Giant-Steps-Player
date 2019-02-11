@@ -25,6 +25,8 @@
 </center>
 
 <script>
+
+//creating the variables 
 var context,
     audioBuffer,
     sineOscillator,
@@ -36,6 +38,7 @@ var context,
     triangleOscillator,
     trianglePlayer;
 
+//setting the stop button function
 document.querySelector("#stopButton").addEventListener('click', function() {
   if (context !== undefined) {
     // If sineOScillator is defined (not undefined)
@@ -80,12 +83,14 @@ document.querySelector("#stopButton").addEventListener('click', function() {
   }
 });
 
+//creating the function to initialized audio context, decode audio, and initializing buffer
 function initializeAudioContext(onBufferInitialized) {
   if (context === undefined) {
     context = new AudioContext();
     var request = new XMLHttpRequest();
     request.open('GET', "sound1.wav", true);
     request.responseType = 'arraybuffer';
+
     // Decode asynchronously
     request.onload = function() {
       context.decodeAudioData(request.response, function(buffer) {
@@ -99,10 +104,11 @@ function initializeAudioContext(onBufferInitialized) {
   }
 }
 
+//setting an error function for the console
 function onError() {
   console.log("failed to load sound file");
 }
-
+//initializing the player with the buffer source
 function initializePlayer() {
   var player = context.createBufferSource();
   player.loop = true;
@@ -111,6 +117,7 @@ function initializePlayer() {
   return player;
 }
 
+//conecting the oscillator to context and destination and setting events (tone and time)
 function startOscillator(type, player) {
   var now = context.currentTime;
   var oscillator = context.createOscillator();
@@ -148,7 +155,7 @@ function startOscillator(type, player) {
   document.querySelector("#stopButton").disabled = false;
   return oscillator;
 }
-
+//adding functunality to even listner 
 document.querySelector("#sineButton").addEventListener('click', function() {
   initializeAudioContext(function () {
     sinePlayer = initializePlayer();
